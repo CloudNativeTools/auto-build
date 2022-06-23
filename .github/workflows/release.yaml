@@ -14,7 +14,7 @@ env:
 jobs:
   release-linux-amd64:
     runs-on: ubuntu-latest
-    if: github.repository	== 'kubesphere/ksv-installer'
+    if: github.repository	== 'CloudNativeTools/auto-build'
     steps:
       #- uses: actions/checkout@v2
       - name: Get Version
