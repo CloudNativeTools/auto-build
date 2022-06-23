@@ -56,7 +56,7 @@ jobs:
           docker run -d -p 5000:5000 --restart always --name kk-registry -v /mnt/registry:/var/lib/registry registry:2
       - name: Push image
         run: |
-          IMAGE=$dockerhub.kubekey.local:5000/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
+          IMAGE=$REGISTRY_URL/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
           docker buildx build --platform linux/amd64,linux/arm64 --push -f Dockerfile.complete -t $IMAGE .
           echo "Push $IMAGE success!"
       - name: Build package (x86_64)
