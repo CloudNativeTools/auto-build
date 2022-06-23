@@ -57,6 +57,7 @@ jobs:
       - name: Push image
         run: |
           IMAGE=$REGISTRY_URL/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
+          cd ksv-installer
           docker buildx build --platform linux/amd64,linux/arm64 --push -f Dockerfile.complete -t $IMAGE .
           echo "Push $IMAGE success!"
       - name: Build package (x86_64)
