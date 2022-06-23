@@ -1,0 +1,90 @@
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+name: Build Release
+
+env:
+  # TODO: Change variable to your image's name.
+  IMAGE_NAME: ks-installer
+  IMAGE_REPO: kubespheredev
+  REGISTRY_URL: dockerhub.kubekey.local:5000
+
+jobs:
+  release-linux-amd64:
+    runs-on: ubuntu-latest
+    if: github.repository	== 'kubesphere/ksv-installer'
+    steps:
+      #- uses: actions/checkout@v2
+      - name: Get Version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Extend free disk and install skopeo
+        run: |
+          git clone -b ${{ steps.get_version.outputs.VERSION }} https://${{ secrets.USERNAME }}:${{ secrets.PASSWORD }}@github.com/kubesphere/ksv-installer.git
+
+      - name: Extend free disk and install skopeo
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android
+          sudo apt install skopeo -y
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: run local registry
+        run: |
+          echo "${{ secrets.HarborAddress }} hub.package.local" >> /etc/hosts 
+          echo '127.0.0.1 dockerhub.kubekey.local' >> /etc/hosts 
+          docker run -d -p 5000:5000 --restart always --name kk-registry -v /mnt/registry:/var/lib/registry registry:2
+      - name: Push image
+        run: |
+          IMAGE=$dockerhub.kubekey.local:5000/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
+          docker buildx build --platform linux/amd64,linux/arm64 --push -f Dockerfile.complete -t $IMAGE .
+          echo "Push $IMAGE success!"
+      - name: Build package (x86_64)
+        run: |
+          cd ksv-installer/release && KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph.sh
+      
+
+      - name: Upload Release (x86_64)
+        id: upload-release-asset-1
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./release/kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_name: kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_content_type: application/txt
+
+      - name: Build package (arm64)
+        run: |
+          cd release && KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph-arm64.sh
+      - name: Upload Release (arm64)
+        id: upload-release-asset-2
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./release/kubesphere-virtualization-arm64-${KSV_VERSION}.tar.gz
+          asset_name: kubesphere-virtualization-arm64-${KSV_VERSION}.tar.gz
+          asset_content_type: application/txt
