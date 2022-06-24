@@ -86,7 +86,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./release/kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_path: ./kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz
           asset_name: kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz
           asset_content_type: application/txt
 
@@ -104,6 +104,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./release/kubesphere-virtualization-arm64-${KSV_VERSION}.tar.gz
+          asset_path: ./kubesphere-virtualization-arm64-${KSV_VERSION}.tar.gz
           asset_name: kubesphere-virtualization-arm64-${KSV_VERSION}.tar.gz
           asset_content_type: application/txt
