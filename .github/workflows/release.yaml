@@ -91,7 +91,7 @@ jobs:
           sed -i 's/dockerhub\.kubekey\.local\:5000/127\.0\.0\.1/g' scripts/build-package-rook-ceph-arm64.sh
           KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph-arm64.sh
           cd -
-        bash scripts/build-package-rook-ceph-arm64.sh
+          bash scripts/build-package-rook-ceph-arm64.sh
       - name: Upload Release (arm64)
         id: upload-release-asset-2
         uses: actions/upload-release-asset@v1
