@@ -78,17 +78,7 @@ jobs:
           sed -i 's/dockerhub\.kubekey\.local\:5000/127\.0\.0\.1/g' scripts/build-package-rook-ceph.sh
           KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph.sh
           cd -
-
-      - name: Upload Release (x86_64)
-        id: upload-release-asset-1
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./ksv-installer/release/kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz
-          asset_name: kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz
-          asset_content_type: application/txt
+          sshpass -p ${{ secrets.ReleasePassword }} scp -P ${{ secrets.ReleasePort }} ./ksv-installer/release/kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz ${{ secrets.ReleaseName }}@${{ secrets.HarborAddress }}:/data/KSV/release
 
       - name: Build package (arm64)
         run: |
@@ -97,13 +87,4 @@ jobs:
           KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph-arm64.sh
           cd -
           bash scripts/build-package-rook-ceph-arm64.sh
-      - name: Upload Release (arm64)
-        id: upload-release-asset-2
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./ksv-installer/release/kubesphere-virtualization-arm64-${KSV_VERSION}.tar.gz
-          asset_name: kubesphere-virtualization-arm64-${KSV_VERSION}.tar.gz
-          asset_content_type: application/txt
+          sshpass -p ${{ secrets.ReleasePassword }} scp -P ${{ secrets.ReleasePort }} ./ksv-installer/release/kubesphere-virtualization-arm64-${{ steps.get_version.outputs.VERSION }}.tar.gz ${{ secrets.ReleaseName }}@${{ secrets.HarborAddress }}:/data/KSV/release
