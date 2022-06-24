@@ -59,6 +59,7 @@ jobs:
           docker run -d -p 127.0.0.1:80:5000 --restart always --name kk-registry -v /mnt/registry:/var/lib/registry registry:2
       - name: Push image
         run: |
+          docker ps 
           sudo echo "${{ secrets.HarborAddress }} hub.package.local" | sudo tee -a /etc/hosts
           sudo echo '127.0.0.1 dockerhub.kubekey.local' | sudo tee -a /etc/hosts
           IMAGE=127.0.0.1/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
