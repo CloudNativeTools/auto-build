@@ -61,7 +61,7 @@ jobs:
         run: |
           sudo echo "${{ secrets.HarborAddress }} hub.package.local" | sudo tee -a /etc/hosts
           sudo echo '127.0.0.1 dockerhub.kubekey.local' | sudo tee -a /etc/hosts
-          IMAGE=$REGISTRY_URL/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
+          IMAGE=127.0.0.1:5000/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
           cd ksv-installer
           docker buildx build --platform linux/amd64,linux/arm64 --push -f Dockerfile.complete -t $IMAGE .
           echo "Push $IMAGE success!"
