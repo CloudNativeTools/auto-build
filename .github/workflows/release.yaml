@@ -56,12 +56,12 @@ jobs:
         run: |
           sudo echo "${{ secrets.HarborAddress }} hub.package.local" | sudo tee -a /etc/hosts
           sudo echo '127.0.0.1 dockerhub.kubekey.local' | sudo tee -a /etc/hosts
-          docker run -d -p 127.0.0.1:5000:5000 --restart always --name kk-registry -v /mnt/registry:/var/lib/registry registry:2
+          docker run -d -p 127.0.0.1:80:5000 --restart always --name kk-registry -v /mnt/registry:/var/lib/registry registry:2
       - name: Push image
         run: |
           sudo echo "${{ secrets.HarborAddress }} hub.package.local" | sudo tee -a /etc/hosts
           sudo echo '127.0.0.1 dockerhub.kubekey.local' | sudo tee -a /etc/hosts
-          IMAGE=127.0.0.1:5000/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
+          IMAGE=127.0.0.1/$IMAGE_REPO/$IMAGE_NAME:ksv-${{ steps.get_version.outputs.VERSION }}
           cd ksv-installer
           docker buildx build --platform linux/amd64,linux/arm64 --push -f Dockerfile.complete -t $IMAGE .
           echo "Push $IMAGE success!"
@@ -69,8 +69,10 @@ jobs:
         run: |
           sudo echo "${{ secrets.HarborAddress }} hub.package.local" | sudo tee -a /etc/hosts
           sudo echo '127.0.0.1 dockerhub.kubekey.local' | sudo tee -a /etc/hosts
-          cd ksv-installer/release && KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph.sh
-      
+          cd ksv-installer/release 
+          sed -i 's/dockerhub\.kubekey\.local\:5000/127\.0\.0\.1/g' scripts/build-package-rook-ceph.sh
+          KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph.sh
+          cd -
 
       - name: Upload Release (x86_64)
         id: upload-release-asset-1
@@ -85,7 +87,11 @@ jobs:
 
       - name: Build package (arm64)
         run: |
-          cd release && KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph-arm64.sh
+          cd ksv-installer/release 
+          sed -i 's/dockerhub\.kubekey\.local\:5000/127\.0\.0\.1/g' scripts/build-package-rook-ceph-arm64.sh
+          KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph-arm64.sh
+          cd -
+        bash scripts/build-package-rook-ceph-arm64.sh
       - name: Upload Release (arm64)
         id: upload-release-asset-2
         uses: actions/upload-release-asset@v1
