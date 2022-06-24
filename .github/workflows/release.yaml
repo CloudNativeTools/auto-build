@@ -31,7 +31,7 @@ jobs:
       - name: Extend free disk and install skopeo
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android
-          sudo apt install skopeo -y
+          sudo apt install skopeo sshpass -y
 
       - name: Create Release
         id: create_release
