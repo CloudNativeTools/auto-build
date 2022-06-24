@@ -78,7 +78,7 @@ jobs:
           sed -i 's/dockerhub\.kubekey\.local\:5000/127\.0\.0\.1/g' scripts/build-package-rook-ceph.sh
           KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph.sh
           cd -
-          sshpass -p ${{ secrets.ReleasePassword }} scp -P ${{ secrets.ReleasePort }} ./ksv-installer/release/kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz ${{ secrets.ReleaseName }}@${{ secrets.HarborAddress }}:/data/KSV/release
+          sshpass -p ${{ secrets.ReleasePassword }} scp -o 'StrictHostKeyChecking no' -P ${{ secrets.ReleasePort }} ./ksv-installer/release/kubesphere-virtualization-x86_64-${{ steps.get_version.outputs.VERSION }}.tar.gz ${{ secrets.ReleaseName }}@${{ secrets.HarborAddress }}:/data/KSV/release
 
       - name: Build package (arm64)
         run: |
@@ -87,4 +87,4 @@ jobs:
           KSV_VERSION=${{ steps.get_version.outputs.VERSION }} bash scripts/build-package-rook-ceph-arm64.sh
           cd -
           bash scripts/build-package-rook-ceph-arm64.sh
-          sshpass -p ${{ secrets.ReleasePassword }} scp -P ${{ secrets.ReleasePort }} ./ksv-installer/release/kubesphere-virtualization-arm64-${{ steps.get_version.outputs.VERSION }}.tar.gz ${{ secrets.ReleaseName }}@${{ secrets.HarborAddress }}:/data/KSV/release
+          sshpass -p ${{ secrets.ReleasePassword }} scp -o 'StrictHostKeyChecking no' -P ${{ secrets.ReleasePort }} ./ksv-installer/release/kubesphere-virtualization-arm64-${{ steps.get_version.outputs.VERSION }}.tar.gz ${{ secrets.ReleaseName }}@${{ secrets.HarborAddress }}:/data/KSV/release
